@@ -1,0 +1,99 @@
+/* ── Token Analytics Page ── */
+.analytics-back {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--text3); font-size: 13px;
+  background: none; border: none;
+  cursor: pointer; margin-bottom: 20px;
+  transition: color 0.2s; font-family: var(--font);
+  letter-spacing: 0.04em;
+}
+.analytics-back:hover { color: var(--green); }
+
+.analytics-header {
+  display: flex; align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px; flex-wrap: wrap; gap: 16px;
+}
+.analytics-token-info { display: flex; align-items: center; gap: 16px; }
+.analytics-avatar {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--bg3); border: 2px solid var(--green-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 700; color: var(--green);
+}
+.analytics-name   { font-size: 26px; font-weight: 700; letter-spacing: 0.04em; }
+.analytics-ticker { font-size: 14px; color: var(--text3); font-family: var(--mono); }
+
+.analytics-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.x-mentions {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 14px;
+  font-size: 12px; color: var(--text2);
+}
+.x-mentions-count { font-family: var(--mono); color: var(--green); font-weight: 700; }
+
+.ca-label-small {
+  font-size: 9px; letter-spacing: 0.1em;
+  color: var(--text3); text-transform: uppercase; margin-bottom: 2px;
+}
+
+/* Stats grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px; margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 18px;
+  transition: border-color 0.2s;
+}
+.stat-card:hover { border-color: var(--green-border); }
+.stat-label {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 6px;
+}
+.stat-value { font-size: 17px; font-weight: 700; font-family: var(--mono); color: var(--text); }
+
+/* Chart */
+.chart-section {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 20px; margin-bottom: 24px;
+}
+.chart-header {
+  display: flex; align-items: center;
+  justify-content: space-between; margin-bottom: 16px;
+}
+.chart-title {
+  font-size: 13px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text2);
+}
+
+/* Data tabs */
+.data-tabs {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden;
+}
+.data-tab-bar {
+  display: flex; border-bottom: 1px solid var(--border); padding: 0 4px;
+}
+.data-tab {
+  padding: 12px 18px; font-size: 12px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text3); cursor: pointer;
+  border-bottom: 2px solid transparent; transition: all 0.2s;
+}
+.data-tab:hover { color: var(--text2); }
+.data-tab.active { color: var(--green); border-bottom-color: var(--green); }
+
+@media (max-width: 900px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .analytics-header { flex-direction: column; }
+}
+@media (max-width: 600px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+}

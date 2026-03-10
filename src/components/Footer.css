@@ -1,0 +1,75 @@
+/* ── Footer ── */
+.footer {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  padding: 32px 24px;
+}
+.footer-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+  align-items: center;
+}
+
+/* Brand */
+.footer-brand { display: flex; flex-direction: column; gap: 6px; }
+.footer-logo  { display: flex; align-items: center; gap: 10px; }
+.footer-logo-icon {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--green);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #000;
+}
+.footer-logo-text {
+  font-size: 16px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text);
+}
+.footer-slogan {
+  font-size: 11px; color: var(--text3);
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding-left: 38px;
+}
+
+/* Center */
+.footer-center {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 12px;
+}
+.footer-ca-label {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.1em; color: var(--text3);
+  text-transform: uppercase; margin-bottom: 4px;
+}
+.footer-ca {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 14px;
+}
+.footer-ca-addr { font-family: var(--mono); font-size: 11px; color: var(--text2); }
+.footer-socials { display: flex; gap: 8px; }
+.footer-social {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text3); cursor: pointer; font-size: 14px;
+  transition: all 0.2s; text-decoration: none;
+}
+.footer-social:hover { border-color: var(--green-border); color: var(--green); }
+
+/* Right */
+.footer-right {
+  display: flex; flex-direction: column;
+  align-items: flex-end; gap: 4px;
+}
+.powered-by  { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text3); }
+.powered-sol { font-size: 15px; font-weight: 700; color: var(--text2); letter-spacing: 0.06em; }
+.sol-dot     { color: var(--green); }
+
+@media (max-width: 900px) {
+  .footer-inner  { grid-template-columns: 1fr; gap: 20px; }
+  .footer-right  { align-items: flex-start; }
+  .footer-center { align-items: flex-start; }
+}
