@@ -97,3 +97,12 @@
 @media (max-width: 600px) {
   .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
 }
+
+.table-status {
+  padding: 24px;
+  text-align: center;
+  color: var(--text3);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+.table-err { color: var(--red); }

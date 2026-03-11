@@ -1,15 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PriceChart from '../components/PriceChart';
 import { useCopy } from '../hooks/useCopy';
 import { TOKEN_TRADES, TOKEN_HOLDERS, TOKEN_WHALES } from '../data/mockData';
+import { fetchTokenTransactions, fetchTokenHolders } from '../services/helius';
 import './TokenPage.css';
-
-const CONTRACT = 'Hs9bCv3fKpWqMzY7RnXeUdT2AjLwPo4NgQiVmEsBh6';
 
 export default function TokenPage({ token, setPage }) {
   const [chartTime, setChartTime] = useState('24H');
   const [dataTab,   setDataTab]   = useState('trades');
   const { copy, copied } = useCopy();
+
+  const [trades,      setTrades]      = useState(TOKEN_TRADES);
+  const [holders,     setHolders]     = useState(TOKEN_HOLDERS);
+  const [tradesLoad,  setTradesLoad]  = useState(false);
+  const [holdersLoad, setHoldersLoad] = useState(false);
+  const [tradesErr,   setTradesErr]   = useState(null);
+  const [holdersErr,  setHoldersErr]  = useState(null);
+
+  const mint     = token?.mint;
+  const contract = mint || 'Hs9bCv3fKpWqMzY7RnXeUdT2AjLwPo4NgQiVmEsBh6';
+
+  // Fetch trades when tab is opened or token changes
+  useEffect(() => {
+    if (!mint) return;
+    setTradesLoad(true);
+    setTradesErr(null);
+    fetchTokenTransactions(mint)
+      .then(data => setTrades(data.length ? data : TOKEN_TRADES))
+      .catch(e  => setTradesErr(e.message))
+      .finally(()  => setTradesLoad(false));
+  }, [mint]);
+
+  // Fetch holders when tab switches to holders
+  useEffect(() => {
+    if (!mint || dataTab !== 'holders') return;
+    if (holders !== TOKEN_HOLDERS) return; // already fetched
+    setHoldersLoad(true);
+    setHoldersErr(null);
+    fetchTokenHolders(mint)
+      .then(data => setHolders(data.length ? data : TOKEN_HOLDERS))
+      .catch(e  => setHoldersErr(e.message))
+      .finally(()  => setHoldersLoad(false));
+  }, [mint, dataTab]); // eslint-disable-line
 
   const stats = [
     { label: 'Price',      val: token?.price  || '$0.00482' },
@@ -48,14 +80,14 @@ export default function TokenPage({ token, setPage }) {
           <div className="ca-copy">
             <div>
               <div className="ca-label-small">Contract</div>
-              <span className="ca-text">{CONTRACT.slice(0, 16)}…</span>
+              <span className="ca-text">{contract.slice(0, 16)}…</span>
             </div>
-            <button className="copy-icon-btn" onClick={() => copy(CONTRACT)}>⎘</button>
+            <button className="copy-icon-btn" onClick={() => copy(contract)}>⎘</button>
           </div>
 
           <div className="social-links">
-            <a href="https://x.com"    target="_blank" rel="noreferrer" className="social-link">𝕏</a>
-            <a href="https://t.me"     target="_blank" rel="noreferrer" className="social-link">✈</a>
+            <a href="https://x.com"       target="_blank" rel="noreferrer" className="social-link">𝕏</a>
+            <a href="https://t.me"        target="_blank" rel="noreferrer" className="social-link">✈</a>
             <a href="https://discord.com" target="_blank" rel="noreferrer" className="social-link">◈</a>
           </div>
 
@@ -113,39 +145,51 @@ export default function TokenPage({ token, setPage }) {
 
         <div className="data-table-wrap">
           {dataTab === 'trades' && (
-            <table className="data-table">
-              <thead>
-                <tr><th>Time</th><th>Type</th><th>Amount</th><th>Value</th></tr>
-              </thead>
-              <tbody>
-                {TOKEN_TRADES.map((r, i) => (
-                  <tr key={i}>
-                    <td>{r.time}</td>
-                    <td><span className={r.type === 'buy' ? 'buy-tag' : 'sell-tag'}>{r.type.toUpperCase()}</span></td>
-                    <td>{r.amount}</td>
-                    <td>{r.value}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            tradesLoad
+              ? <div className="table-status">Loading trades…</div>
+              : tradesErr
+              ? <div className="table-status table-err">{tradesErr}</div>
+              : (
+                <table className="data-table">
+                  <thead>
+                    <tr><th>Time</th><th>Type</th><th>Amount</th><th>Value</th></tr>
+                  </thead>
+                  <tbody>
+                    {trades.map((r, i) => (
+                      <tr key={i}>
+                        <td>{r.time}</td>
+                        <td><span className={r.type === 'buy' ? 'buy-tag' : 'sell-tag'}>{r.type.toUpperCase()}</span></td>
+                        <td>{r.amount}</td>
+                        <td>{r.value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )
           )}
 
           {dataTab === 'holders' && (
-            <table className="data-table">
-              <thead>
-                <tr><th>Wallet</th><th>Balance</th><th>% Holdings</th><th>Value</th></tr>
-              </thead>
-              <tbody>
-                {TOKEN_HOLDERS.map((r, i) => (
-                  <tr key={i}>
-                    <td>{r.wallet}</td>
-                    <td>{r.balance}</td>
-                    <td style={{ color: 'var(--green)' }}>{r.pct}</td>
-                    <td>{r.value}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            holdersLoad
+              ? <div className="table-status">Loading holders…</div>
+              : holdersErr
+              ? <div className="table-status table-err">{holdersErr}</div>
+              : (
+                <table className="data-table">
+                  <thead>
+                    <tr><th>Wallet</th><th>Balance</th><th>% Holdings</th><th>Value</th></tr>
+                  </thead>
+                  <tbody>
+                    {holders.map((r, i) => (
+                      <tr key={i}>
+                        <td>{r.wallet}</td>
+                        <td>{r.balance}</td>
+                        <td style={{ color: 'var(--green)' }}>{r.pct}</td>
+                        <td>{r.value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )
           )}
 
           {dataTab === 'whales' && (
