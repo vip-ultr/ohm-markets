@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { usePrivy } from '@privy-io/react-auth';
+import { usePrivy, useConnectOrCreateWallet } from '@privy-io/react-auth';
 import { useCopy } from '../hooks/useCopy';
 import { WALLET_HOLDINGS, WALLET_HISTORY } from '../data/mockData';
 import { fetchWalletBalances, fetchWalletTransactions } from '../services/helius';
 import './ProfilePage.css';
 
 export default function ProfilePage({ connected, walletAddress, user, setPage }) {
-  const { login, logout } = usePrivy();
+  const { logout } = usePrivy();
+  const { connectOrCreateWallet } = useConnectOrCreateWallet();
   const [holdTab, setHoldTab] = useState('holdings');
   const { copy, copied } = useCopy();
 
@@ -61,7 +62,7 @@ export default function ProfilePage({ connected, walletAddress, user, setPage })
           <button
             className="connect-btn"
             style={{ padding: '12px 32px', fontSize: '15px' }}
-            onClick={login}
+            onClick={connectOrCreateWallet}
           >
             Connect Wallet
           </button>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { usePrivy } from '@privy-io/react-auth';
+import { usePrivy, useConnectOrCreateWallet } from '@privy-io/react-auth';
 import './Navbar.css';
 
 /**
@@ -12,7 +12,10 @@ import './Navbar.css';
  *   walletAddress {string} — primary wallet address (from Privy)
  */
 export default function Navbar({ setPage, dark, setDark, connected, walletAddress }) {
-  const { login, logout } = usePrivy();
+  const { logout } = usePrivy();
+  // useConnectOrCreateWallet: opens the wallet picker for unauthenticated users,
+  // OR creates a Solana embedded wallet if user is already logged in without one.
+  const { connectOrCreateWallet } = useConnectOrCreateWallet();
 
   const shortAddr = walletAddress
     ? `${walletAddress.slice(0, 4)}…${walletAddress.slice(-4)}`
@@ -53,7 +56,7 @@ export default function Navbar({ setPage, dark, setDark, connected, walletAddres
         {!connected ? (
           <button
             className="connect-btn connect-btn-hide"
-            onClick={login}
+            onClick={connectOrCreateWallet}
           >
             Connect
           </button>
