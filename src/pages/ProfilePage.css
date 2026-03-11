@@ -69,3 +69,11 @@
 @media (max-width: 900px) {
   .balances-grid { grid-template-columns: 1fr; }
 }
+
+.table-status {
+  padding: 24px;
+  text-align: center;
+  color: var(--text3);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}

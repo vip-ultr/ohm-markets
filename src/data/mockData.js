@@ -2,14 +2,14 @@
 // Replace with real API calls to Helius, Bags.fm, and X APIs
 
 export const TOKENS = [
-  { id: 1,  name: "GIGA",    ticker: "GIGA",  price: "$0.00482",    age: "2h",  mcap: "$4.82M",   change: "+18.4%", pos: true,  avatar: "G", isNew: true,  isHot: false },
-  { id: 2,  name: "MOODENG", ticker: "MOOD",  price: "$0.000134",   age: "5h",  mcap: "$1.34M",   change: "+6.1%",  pos: true,  avatar: "M", isNew: false, isHot: true  },
-  { id: 3,  name: "PNUT",    ticker: "PNUT",  price: "$0.0271",     age: "1d",  mcap: "$27.1M",   change: "-3.5%",  pos: false, avatar: "P", isNew: false, isHot: false },
-  { id: 4,  name: "SIGMA",   ticker: "SIGMA", price: "$0.00099",    age: "3h",  mcap: "$990K",    change: "+22.0%", pos: true,  avatar: "S", isNew: true,  isHot: true  },
-  { id: 5,  name: "DEGEN",   ticker: "DEGEN", price: "$0.00340",    age: "12h", mcap: "$3.40M",   change: "+4.0%",  pos: true,  avatar: "D", isNew: false, isHot: false },
-  { id: 6,  name: "TURBO",   ticker: "TURBO", price: "$0.00155",    age: "2d",  mcap: "$1.55M",   change: "-1.2%",  pos: false, avatar: "T", isNew: false, isHot: false },
-  { id: 7,  name: "WIF",     ticker: "WIF",   price: "$0.1720",     age: "8h",  mcap: "$169.4M",  change: "-3.5%",  pos: false, avatar: "W", isNew: false, isHot: false },
-  { id: 8,  name: "BONK",    ticker: "BONK",  price: "$0.00000599", age: "3d",  mcap: "$499.9M",  change: "+4.0%",  pos: true,  avatar: "B", isNew: false, isHot: true  },
+  { id: 1,  name: "GIGA",    ticker: "GIGA",  price: "$0.00482",    age: "2h",  mcap: "$4.82M",   change: "+18.4%", pos: true,  avatar: "G", isNew: true,  isHot: false, mint: "63LfDmNb3MQ8mw9MtZ2To9bEA2M71kZUUGq5tiJxcqj9" },
+  { id: 2,  name: "MOODENG", ticker: "MOOD",  price: "$0.000134",   age: "5h",  mcap: "$1.34M",   change: "+6.1%",  pos: true,  avatar: "M", isNew: false, isHot: true,  mint: "ED5nyyWEzpPPiWimP8vYm7sD7TD3LAt3Q3gRTWHzPJBY"  },
+  { id: 3,  name: "PNUT",    ticker: "PNUT",  price: "$0.0271",     age: "1d",  mcap: "$27.1M",   change: "-3.5%",  pos: false, avatar: "P", isNew: false, isHot: false, mint: "2qEHjDLDLbuBgRYvsxhc5D6uDWAivNFZGan56P1tpump" },
+  { id: 4,  name: "SIGMA",   ticker: "SIGMA", price: "$0.00099",    age: "3h",  mcap: "$990K",    change: "+22.0%", pos: true,  avatar: "S", isNew: true,  isHot: true,  mint: "5SVG3T9CNQsm2kEwzbRq6hASqh1oGfjmHhvDL4QALB41" },
+  { id: 5,  name: "DEGEN",   ticker: "DEGEN", price: "$0.00340",    age: "12h", mcap: "$3.40M",   change: "+4.0%",  pos: true,  avatar: "D", isNew: false, isHot: false, mint: "ABoZFCEBWGZfEyLDFHkjFZusMbqFEDFkdpAUqLg5pump" },
+  { id: 6,  name: "TURBO",   ticker: "TURBO", price: "$0.00155",    age: "2d",  mcap: "$1.55M",   change: "-1.2%",  pos: false, avatar: "T", isNew: false, isHot: false, mint: "FU1q8vJpZNUrmqsciSjp8bAKKidGsLmouB8CBdf8TKQv" },
+  { id: 7,  name: "WIF",     ticker: "WIF",   price: "$0.1720",     age: "8h",  mcap: "$169.4M",  change: "-3.5%",  pos: false, avatar: "W", isNew: false, isHot: false, mint: "EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm" },
+  { id: 8,  name: "BONK",    ticker: "BONK",  price: "$0.00000599", age: "3d",  mcap: "$499.9M",  change: "+4.0%",  pos: true,  avatar: "B", isNew: false, isHot: true,  mint: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263" },
 ];
 
 export const TRENDING = [
@@ -66,10 +66,21 @@ export const WALLET_HISTORY = [
   { time: "2d ago", token: "PNUT",    amount: "10,000",   price: "$0.0285"   },
 ];
 
-// ── API Config (fill in your keys) ──────────────────────────────────────────
+// ── API Config ───────────────────────────────────────────────────────────────
 export const API_CONFIG = {
-  helius:  { baseUrl: "https://api.helius.xyz/v0", apiKey: "YOUR_HELIUS_API_KEY" },
-  bagsfm:  { baseUrl: "https://api.bags.fm",        apiKey: "YOUR_BAGS_API_KEY"  },
-  twitter: { baseUrl: "https://api.twitter.com/2",  bearerToken: "YOUR_TWITTER_BEARER_TOKEN" },
-  privy:   { appId: "YOUR_PRIVY_APP_ID" },
+  helius:  {
+    baseUrl: process.env.REACT_APP_HELIUS_BASE_URL,
+    apiKey:  process.env.REACT_APP_HELIUS_API_KEY,
+  },
+  bagsfm:  {
+    baseUrl: process.env.REACT_APP_BAGSFM_BASE_URL,
+    apiKey:  process.env.REACT_APP_BAGSFM_API_KEY,
+  },
+  twitter: {
+    baseUrl:     "https://api.twitter.com/2",
+    bearerToken: process.env.REACT_APP_TWITTER_BEARER_TOKEN,
+  },
+  privy: {
+    appId: process.env.REACT_APP_PRIVY_APP_ID,
+  },
 };

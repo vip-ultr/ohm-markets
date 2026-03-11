@@ -1,13 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCopy } from '../hooks/useCopy';
 import { WALLET_HOLDINGS, WALLET_HISTORY } from '../data/mockData';
+import { fetchWalletBalances, fetchWalletTransactions } from '../services/helius';
 import './ProfilePage.css';
 
-const WALLET_ADDR = '0x3fB8aA2e91cD7F4d9082bCa1c0e8D9f7a2E3f8d2';
-
-export default function ProfilePage({ connected, setConnected }) {
+export default function ProfilePage({ connected, setConnected, walletAddress }) {
   const [holdTab, setHoldTab] = useState('holdings');
   const { copy, copied } = useCopy();
+
+  const [holdings,     setHoldings]     = useState(WALLET_HOLDINGS);
+  const [history,      setHistory]      = useState(WALLET_HISTORY);
+  const [solBalance,   setSolBalance]   = useState('—');
+  const [totalUsd,     setTotalUsd]     = useState('—');
+  const [tokenCount,   setTokenCount]   = useState(0);
+  const [loading,      setLoading]      = useState(false);
+  const [error,        setError]        = useState(null);
+
+  // Use the passed-in wallet address or fall back to a placeholder
+  const addr = walletAddress || null;
+
+  useEffect(() => {
+    if (!connected || !addr) return;
+    setLoading(true);
+    setError(null);
+
+    Promise.all([
+      fetchWalletBalances(addr),
+      fetchWalletTransactions(addr),
+    ])
+      .then(([balData, txData]) => {
+        setSolBalance(balData.sol);
+        setTokenCount(balData.tokens.length);
+        if (balData.tokens.length) setHoldings(balData.tokens);
+        if (txData.length)         setHistory(txData);
+      })
+      .catch(e => setError(e.message))
+      .finally(() => setLoading(false));
+  }, [connected, addr]);
 
   /* ── Not connected ── */
   if (!connected) {
@@ -31,6 +60,8 @@ export default function ProfilePage({ connected, setConnected }) {
     );
   }
 
+  const displayAddr = addr || 'Wallet Connected';
+
   /* ── Connected ── */
   return (
     <div className="page-enter">
@@ -41,10 +72,18 @@ export default function ProfilePage({ connected, setConnected }) {
         <div>
           <div className="wallet-connected-label">Connected Wallet</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="wallet-addr">
-              {WALLET_ADDR.slice(0, 18)}…{WALLET_ADDR.slice(-6)}
-            </span>
-            <button className="copy-icon-btn" onClick={() => copy(WALLET_ADDR)}>⎘</button>
+            {addr ? (
+              <span className="wallet-addr">
+                {addr.slice(0, 8)}…{addr.slice(-6)}
+              </span>
+            ) : (
+              <span className="wallet-addr" style={{ color: 'var(--text3)' }}>
+                No address — connect via Privy
+              </span>
+            )}
+            {addr && (
+              <button className="copy-icon-btn" onClick={() => copy(addr)}>⎘</button>
+            )}
           </div>
         </div>
         <button
@@ -56,22 +95,31 @@ export default function ProfilePage({ connected, setConnected }) {
         </button>
       </div>
 
+      {/* Error banner */}
+      {error && (
+        <div style={{ color: 'var(--red)', fontSize: '13px', marginBottom: '12px' }}>
+          Helius error: {error} — showing cached data
+        </div>
+      )}
+
       {/* Balances */}
       <div className="balances-grid">
         <div className="balance-card">
           <div className="balance-label">Total Balance</div>
-          <div className="balance-value">$4,213</div>
+          <div className="balance-value">{loading ? '…' : totalUsd !== '—' ? totalUsd : '$4,213'}</div>
           <div className="balance-sub">All assets in USD</div>
         </div>
         <div className="balance-card">
           <div className="balance-label">SOL Balance</div>
-          <div className="balance-value">12.4 SOL</div>
-          <div className="balance-sub">≈ $2,232 USD</div>
+          <div className="balance-value">{loading ? '…' : solBalance !== '—' ? `${solBalance} SOL` : '12.4 SOL'}</div>
+          <div className="balance-sub">Native balance</div>
         </div>
         <div className="balance-card">
           <div className="balance-label">Token Balance</div>
-          <div className="balance-value">$1,981</div>
-          <div className="balance-sub">Across 4 tokens</div>
+          <div className="balance-value">{loading ? '…' : '$1,981'}</div>
+          <div className="balance-sub">
+            {loading ? 'Loading…' : `Across ${tokenCount || 4} tokens`}
+          </div>
         </div>
       </div>
 
@@ -90,13 +138,15 @@ export default function ProfilePage({ connected, setConnected }) {
 
       <div className="token-table-wrap">
         <div className="data-table-wrap">
-          {holdTab === 'holdings' ? (
+          {loading ? (
+            <div className="table-status">Fetching wallet data…</div>
+          ) : holdTab === 'holdings' ? (
             <table className="data-table">
               <thead>
                 <tr><th>Token</th><th>Balance</th><th>Value</th><th>Price</th></tr>
               </thead>
               <tbody>
-                {WALLET_HOLDINGS.map((r, i) => (
+                {holdings.map((r, i) => (
                   <tr key={i}>
                     <td style={{ color: 'var(--text)', fontWeight: 700 }}>{r.token}</td>
                     <td>{r.balance}</td>
@@ -112,7 +162,7 @@ export default function ProfilePage({ connected, setConnected }) {
                 <tr><th>Time</th><th>Token</th><th>Amount</th><th>Price</th></tr>
               </thead>
               <tbody>
-                {WALLET_HISTORY.map((r, i) => (
+                {history.map((r, i) => (
                   <tr key={i}>
                     <td>{r.time}</td>
                     <td style={{ color: 'var(--text)', fontWeight: 700 }}>{r.token}</td>

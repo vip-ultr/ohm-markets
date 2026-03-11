@@ -13,6 +13,7 @@ export default function App() {
   const [page,          setPage]          = useState('home');
   const [dark,          setDark]          = useState(true);
   const [connected,     setConnected]     = useState(false);
+  const [walletAddress, setWalletAddress] = useState(null);
   const [selectedToken, setSelectedToken] = useState(null);
 
   // Apply dark/light class to body
@@ -47,6 +48,8 @@ export default function App() {
           <ProfilePage
             connected={connected}
             setConnected={setConnected}
+            walletAddress={walletAddress}
+            setWalletAddress={setWalletAddress}
           />
         )}
       </main>
