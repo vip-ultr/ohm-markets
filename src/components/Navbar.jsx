@@ -1,16 +1,23 @@
 import React from 'react';
+import { usePrivy } from '@privy-io/react-auth';
 import './Navbar.css';
 
 /**
  * Navbar — fixed top navigation
  * Props:
- *   setPage      {fn}     — navigate to "home" | "profile" | "token"
- *   dark         {bool}   — current theme
- *   setDark      {fn}     — toggle theme
- *   connected    {bool}   — wallet connection state
- *   setConnected {fn}     — update connection state
+ *   setPage       {fn}     — navigate to "home" | "profile" | "token"
+ *   dark          {bool}   — current theme
+ *   setDark       {fn}     — toggle theme
+ *   connected     {bool}   — wallet connection state (from Privy)
+ *   walletAddress {string} — primary wallet address (from Privy)
  */
-export default function Navbar({ setPage, dark, setDark, connected, setConnected }) {
+export default function Navbar({ setPage, dark, setDark, connected, walletAddress }) {
+  const { login, logout } = usePrivy();
+
+  const shortAddr = walletAddress
+    ? `${walletAddress.slice(0, 4)}…${walletAddress.slice(-4)}`
+    : 'Connected';
+
   return (
     <nav className="navbar">
       {/* Logo */}
@@ -46,7 +53,7 @@ export default function Navbar({ setPage, dark, setDark, connected, setConnected
         {!connected ? (
           <button
             className="connect-btn connect-btn-hide"
-            onClick={() => { setConnected(true); setPage('profile'); }}
+            onClick={login}
           >
             Connect
           </button>
@@ -55,7 +62,7 @@ export default function Navbar({ setPage, dark, setDark, connected, setConnected
             className="connect-btn connect-btn-hide"
             onClick={() => setPage('profile')}
           >
-            0x3f…a8d2
+            {shortAddr}
           </button>
         )}
       </div>
