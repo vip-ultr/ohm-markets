@@ -36,12 +36,13 @@
   font-size: 20px; font-weight: 700;
   color: var(--text);
   letter-spacing: 0.08em;
-  text-transform: uppercase;
+  text-transform: capitalize;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 .nav-search {
   flex: 1;
-  max-width: 420px;
+  max-width: 600px;
   position: relative;
 }
 .nav-search input {

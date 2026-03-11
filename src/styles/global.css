@@ -67,7 +67,7 @@ body {
 
 /* ── Page transition ── */
 .page-enter {
-  animation: fadeUp 0.3s ease;
+  animation: fadeUp 2s ease;
 }
 
 @keyframes fadeUp {

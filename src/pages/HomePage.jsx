@@ -1,28 +1,27 @@
-import React, { useState } from 'react';
-import Sparkline from '../components/Sparkline';
-import { TOKENS, TRENDING, OVERVIEW_STATS } from '../data/mockData';
-import './HomePage.css';
+import React, { useState } from "react";
+import Sparkline from "../components/Sparkline";
+import { TOKENS, TRENDING, OVERVIEW_STATS } from "../data/mockData";
+import "./HomePage.css";
 
 export default function HomePage({ setPage, setSelectedToken }) {
-  const [timeframe, setTimeframe] = useState('24H');
-  const [activeTab, setActiveTab] = useState('trending');
+  const [timeframe, setTimeframe] = useState("24H");
+  const [activeTab, setActiveTab] = useState("trending");
 
   const tabs = [
-    { id: 'watchlist', label: '☆ Watchlist' },
-    { id: 'trending',  label: '🔥 Trending'  },
-    { id: 'new',       label: '✦ New'        },
-    { id: 'majors',    label: 'Majors'       },
-    { id: 'defi',      label: 'DeFi'         },
+    { id: "watchlist", label: "☆" },
+    { id: "trending", label: "🔥 Trending" },
+    { id: "new", label: "✦ New" },
+    { id: "majors", label: "Majors" },
+    { id: "defi", label: "DeFi" },
   ];
 
   const handleTokenClick = (token) => {
     setSelectedToken(token);
-    setPage('token');
+    setPage("token");
   };
 
   return (
     <div className="page-enter">
-
       {/* ── Overview Cards ── */}
       <div className="cards-grid">
         <div className="card">
@@ -50,16 +49,20 @@ export default function HomePage({ setPage, setSelectedToken }) {
       {/* ── Trending Strip ── */}
       <div className="trending-strip">
         <span className="trend-label">🔥 Hot</span>
-        {TRENDING.map(t => (
+        {TRENDING.map((t) => (
           <div
             key={t.name}
             className="trend-item"
-            onClick={() => handleTokenClick(TOKENS.find(tk => tk.ticker === t.name) || TOKENS[0])}
+            onClick={() =>
+              handleTokenClick(
+                TOKENS.find((tk) => tk.ticker === t.name) || TOKENS[0],
+              )
+            }
           >
             <span className="trend-item-name">{t.name}</span>
             <span
               className="trend-item-change"
-              style={{ color: t.pos ? 'var(--green)' : 'var(--red)' }}
+              style={{ color: t.pos ? "var(--green)" : "var(--red)" }}
             >
               {t.change}
             </span>
@@ -69,11 +72,11 @@ export default function HomePage({ setPage, setSelectedToken }) {
 
       {/* ── Tabs + Launchpad ── */}
       <div className="tabs-row">
-        <div className="tab-bar" style={{ marginBottom: 0, border: 'none' }}>
-          {tabs.map(t => (
+        <div className="tab-bar" style={{ marginBottom: 0, border: "none" }}>
+          {tabs.map((t) => (
             <div
               key={t.id}
-              className={`tab-item ${activeTab === t.id ? 'active' : ''}`}
+              className={`tab-item ${activeTab === t.id ? "active" : ""}`}
               onClick={() => setActiveTab(t.id)}
             >
               {t.label}
@@ -84,19 +87,19 @@ export default function HomePage({ setPage, setSelectedToken }) {
           <div className="launch-chip active">Bags.fm</div>
         </div>
       </div>
-      <div className="green-line" style={{ marginBottom: '16px' }} />
+      <div className="green-line" style={{ marginBottom: "16px" }} />
 
       {/* ── Time Filter ── */}
       <div className="time-bar">
         <div className="vol-label">
           <span className="live-dot" />
-          Total Vol: <span style={{ color: 'var(--text2)' }}>$22.75M</span>
+          Total Vol: <span style={{ color: "var(--text2)" }}>$22.75M</span>
         </div>
         <div className="time-btns">
-          {['1H', '24H', '7D', '30D'].map(t => (
+          {["1H", "24H", "7D", "30D"].map((t) => (
             <button
               key={t}
-              className={`time-btn ${timeframe === t ? 'active' : ''}`}
+              className={`time-btn ${timeframe === t ? "active" : ""}`}
               onClick={() => setTimeframe(t)}
             >
               {t}
@@ -107,7 +110,7 @@ export default function HomePage({ setPage, setSelectedToken }) {
 
       {/* ── Token Table ── */}
       <div className="token-table-wrap">
-        <div style={{ overflowX: 'auto' }}>
+        <div style={{ overflowX: "auto" }}>
           <table className="token-table">
             <thead>
               <tr>
@@ -128,33 +131,48 @@ export default function HomePage({ setPage, setSelectedToken }) {
                     <div className="token-info">
                       <div className="token-avatar">{token.avatar}</div>
                       <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                          }}
+                        >
                           <span className="token-name">{token.name}</span>
-                          {token.isNew && <span className="new-badge">New</span>}
-                          {token.isHot && <span className="hot-badge">Hot</span>}
+                          {token.isNew && (
+                            <span className="new-badge">New</span>
+                          )}
+                          {token.isHot && (
+                            <span className="hot-badge">Hot</span>
+                          )}
                         </div>
                         <div className="token-ticker">${token.ticker}</div>
                       </div>
                     </div>
                   </td>
-                  <td><div className="token-price">{token.price}</div></td>
-                  <td style={{ textAlign: 'right' }}>
+                  <td>
+                    <div className="token-price">{token.price}</div>
+                  </td>
+                  <td style={{ textAlign: "right" }}>
                     <Sparkline pos={token.pos} seed={token.id} />
                   </td>
                   <td>
-                    <div className={token.pos ? 'change-pos' : 'change-neg'}>
+                    <div className={token.pos ? "change-pos" : "change-neg"}>
                       {token.change}
                     </div>
                   </td>
-                  <td><div className="token-age">{token.age}</div></td>
-                  <td><div className="token-mcap">{token.mcap}</div></td>
+                  <td>
+                    <div className="token-age">{token.age}</div>
+                  </td>
+                  <td>
+                    <div className="token-mcap">{token.mcap}</div>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
-
     </div>
   );
 }
