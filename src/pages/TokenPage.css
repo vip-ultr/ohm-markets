@@ -106,3 +106,58 @@
   letter-spacing: 0.05em;
 }
 .table-err { color: var(--red); }
+
+/* ── X Social tab ── */
+.x-mentions-active {
+  background: rgba(29, 155, 240, 0.15) !important;
+  border-color: rgba(29, 155, 240, 0.5) !important;
+  color: #1d9bf0 !important;
+}
+
+.tweets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+
+.tweet-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.2s;
+}
+.tweet-card:hover { border-color: rgba(29, 155, 240, 0.4); }
+
+.tweet-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.tweet-author {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1d9bf0;
+  letter-spacing: 0.03em;
+}
+.tweet-time {
+  font-size: 11px;
+  color: var(--text3);
+}
+.tweet-text {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.55;
+  word-break: break-word;
+}
+.tweet-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 0.03em;
+}

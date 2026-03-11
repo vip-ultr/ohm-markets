@@ -3,6 +3,7 @@ import PriceChart from '../components/PriceChart';
 import { useCopy } from '../hooks/useCopy';
 import { TOKEN_TRADES, TOKEN_HOLDERS, TOKEN_WHALES } from '../data/mockData';
 import { fetchTokenTransactions, fetchTokenHolders } from '../services/helius';
+import { fetchRecentTweets, fetchMentionCount, timeAgo } from '../services/twitter';
 import './TokenPage.css';
 
 export default function TokenPage({ token, setPage }) {
@@ -10,6 +11,7 @@ export default function TokenPage({ token, setPage }) {
   const [dataTab,   setDataTab]   = useState('trades');
   const { copy, copied } = useCopy();
 
+  // Helius state
   const [trades,      setTrades]      = useState(TOKEN_TRADES);
   const [holders,     setHolders]     = useState(TOKEN_HOLDERS);
   const [tradesLoad,  setTradesLoad]  = useState(false);
@@ -17,10 +19,17 @@ export default function TokenPage({ token, setPage }) {
   const [tradesErr,   setTradesErr]   = useState(null);
   const [holdersErr,  setHoldersErr]  = useState(null);
 
+  // Twitter / X state
+  const [tweets,       setTweets]       = useState([]);
+  const [mentionCount, setMentionCount] = useState(null);
+  const [socialLoad,   setSocialLoad]   = useState(false);
+  const [socialErr,    setSocialErr]    = useState(null);
+
   const mint     = token?.mint;
+  const ticker   = token?.ticker || 'GIGA';
   const contract = mint || 'Hs9bCv3fKpWqMzY7RnXeUdT2AjLwPo4NgQiVmEsBh6';
 
-  // Fetch trades when tab is opened or token changes
+  // Fetch trades on mount / token change
   useEffect(() => {
     if (!mint) return;
     setTradesLoad(true);
@@ -31,10 +40,10 @@ export default function TokenPage({ token, setPage }) {
       .finally(()  => setTradesLoad(false));
   }, [mint]);
 
-  // Fetch holders when tab switches to holders
+  // Fetch holders when tab opens
   useEffect(() => {
     if (!mint || dataTab !== 'holders') return;
-    if (holders !== TOKEN_HOLDERS) return; // already fetched
+    if (holders !== TOKEN_HOLDERS) return;
     setHoldersLoad(true);
     setHoldersErr(null);
     fetchTokenHolders(mint)
@@ -42,6 +51,31 @@ export default function TokenPage({ token, setPage }) {
       .catch(e  => setHoldersErr(e.message))
       .finally(()  => setHoldersLoad(false));
   }, [mint, dataTab]); // eslint-disable-line
+
+  // Fetch X mentions + tweets when Social tab opens
+  useEffect(() => {
+    if (dataTab !== 'social') return;
+    if (tweets.length) return;
+    setSocialLoad(true);
+    setSocialErr(null);
+    Promise.all([
+      fetchRecentTweets('$' + ticker, 10),
+      fetchMentionCount('$' + ticker),
+    ])
+      .then(([tweetData, count]) => {
+        setTweets(tweetData);
+        setMentionCount(count);
+      })
+      .catch(e => setSocialErr(e.message))
+      .finally(() => setSocialLoad(false));
+  }, [dataTab, ticker]); // eslint-disable-line
+
+  // Fetch mention count on load for the header badge
+  useEffect(() => {
+    fetchMentionCount('$' + ticker)
+      .then(setMentionCount)
+      .catch(() => {});
+  }, [ticker]);
 
   const stats = [
     { label: 'Price',      val: token?.price  || '$0.00482' },
@@ -59,45 +93,51 @@ export default function TokenPage({ token, setPage }) {
 
       {/* Back */}
       <button className="analytics-back" onClick={() => setPage('home')}>
-        ← Back to Markets
+        Back to Markets
       </button>
 
-      {/* ── Header ── */}
+      {/* Header */}
       <div className="analytics-header">
         <div className="analytics-token-info">
           <div className="analytics-avatar">{token?.avatar || 'G'}</div>
           <div>
-            <div className="analytics-name">{token?.name   || 'GIGA'}</div>
-            <div className="analytics-ticker">${token?.ticker || 'GIGA'} · Bags.fm</div>
+            <div className="analytics-name">{token?.name || 'GIGA'}</div>
+            <div className="analytics-ticker">${ticker} Bags.fm</div>
           </div>
         </div>
 
         <div className="analytics-actions">
-          <div className="x-mentions">
-            𝕏 <span className="x-mentions-count">1,284</span> mentions
-          </div>
+          <button
+            className={'x-mentions' + (dataTab === 'social' ? ' x-mentions-active' : '')}
+            onClick={() => setDataTab('social')}
+            title="View X mentions"
+          >
+            X <span className="x-mentions-count">
+              {mentionCount !== null ? mentionCount.toLocaleString() : '...'}
+            </span> mentions
+          </button>
 
           <div className="ca-copy">
             <div>
               <div className="ca-label-small">Contract</div>
-              <span className="ca-text">{contract.slice(0, 16)}…</span>
+              <span className="ca-text">{contract.slice(0, 16)}...</span>
             </div>
-            <button className="copy-icon-btn" onClick={() => copy(contract)}>⎘</button>
+            <button className="copy-icon-btn" onClick={() => copy(contract)}>copy</button>
           </div>
 
           <div className="social-links">
-            <a href="https://x.com"       target="_blank" rel="noreferrer" className="social-link">𝕏</a>
-            <a href="https://t.me"        target="_blank" rel="noreferrer" className="social-link">✈</a>
-            <a href="https://discord.com" target="_blank" rel="noreferrer" className="social-link">◈</a>
+            <a href={'https://x.com/search?q=%24' + ticker} target="_blank" rel="noreferrer" className="social-link">X</a>
+            <a href="https://t.me"        target="_blank" rel="noreferrer" className="social-link">TG</a>
+            <a href="https://discord.com" target="_blank" rel="noreferrer" className="social-link">DC</a>
           </div>
 
           <a href="https://bags.fm" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-            <button className="buy-btn">Buy on Bags.fm ↗</button>
+            <button className="buy-btn">Buy on Bags.fm</button>
           </a>
         </div>
       </div>
 
-      {/* ── Stats Grid ── */}
+      {/* Stats Grid */}
       <div className="stats-grid">
         {stats.map(s => (
           <div key={s.label} className="stat-card">
@@ -107,7 +147,7 @@ export default function TokenPage({ token, setPage }) {
         ))}
       </div>
 
-      {/* ── Price Chart ── */}
+      {/* Price Chart */}
       <div className="chart-section">
         <div className="chart-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -118,7 +158,7 @@ export default function TokenPage({ token, setPage }) {
             {['1H', '24H', '30D'].map(t => (
               <button
                 key={t}
-                className={`time-btn ${chartTime === t ? 'active' : ''}`}
+                className={'time-btn ' + (chartTime === t ? 'active' : '')}
                 onClick={() => setChartTime(t)}
               >
                 {t}
@@ -129,31 +169,33 @@ export default function TokenPage({ token, setPage }) {
         <PriceChart timeframe={chartTime} />
       </div>
 
-      {/* ── Data Tabs ── */}
+      {/* Data Tabs */}
       <div className="data-tabs">
         <div className="data-tab-bar">
-          {['trades', 'holders', 'whales'].map(t => (
+          {['trades', 'holders', 'whales', 'social'].map(t => (
             <div
               key={t}
-              className={`data-tab ${dataTab === t ? 'active' : ''}`}
+              className={'data-tab ' + (dataTab === t ? 'active' : '')}
               onClick={() => setDataTab(t)}
             >
-              {t === 'trades' ? 'Trades' : t === 'holders' ? 'Top Holders' : 'Whale Txns'}
+              {t === 'trades'  ? 'Trades'
+               : t === 'holders' ? 'Top Holders'
+               : t === 'whales'  ? 'Whale Txns'
+               : 'X Social'}
             </div>
           ))}
         </div>
 
         <div className="data-table-wrap">
+
           {dataTab === 'trades' && (
             tradesLoad
-              ? <div className="table-status">Loading trades…</div>
+              ? <div className="table-status">Loading trades...</div>
               : tradesErr
               ? <div className="table-status table-err">{tradesErr}</div>
               : (
                 <table className="data-table">
-                  <thead>
-                    <tr><th>Time</th><th>Type</th><th>Amount</th><th>Value</th></tr>
-                  </thead>
+                  <thead><tr><th>Time</th><th>Type</th><th>Amount</th><th>Value</th></tr></thead>
                   <tbody>
                     {trades.map((r, i) => (
                       <tr key={i}>
@@ -170,14 +212,12 @@ export default function TokenPage({ token, setPage }) {
 
           {dataTab === 'holders' && (
             holdersLoad
-              ? <div className="table-status">Loading holders…</div>
+              ? <div className="table-status">Loading holders...</div>
               : holdersErr
               ? <div className="table-status table-err">{holdersErr}</div>
               : (
                 <table className="data-table">
-                  <thead>
-                    <tr><th>Wallet</th><th>Balance</th><th>% Holdings</th><th>Value</th></tr>
-                  </thead>
+                  <thead><tr><th>Wallet</th><th>Balance</th><th>% Holdings</th><th>Value</th></tr></thead>
                   <tbody>
                     {holders.map((r, i) => (
                       <tr key={i}>
@@ -194,14 +234,12 @@ export default function TokenPage({ token, setPage }) {
 
           {dataTab === 'whales' && (
             <table className="data-table">
-              <thead>
-                <tr><th>Type</th><th>Wallet</th><th>Quantity</th><th>Value</th></tr>
-              </thead>
+              <thead><tr><th>Type</th><th>Wallet</th><th>Quantity</th><th>Value</th></tr></thead>
               <tbody>
                 {TOKEN_WHALES.map((r, i) => (
                   <tr key={i}>
                     <td><span className={r.type === 'buy' ? 'buy-tag' : 'sell-tag'}>{r.type.toUpperCase()}</span></td>
-                    <td><span className="whale-tag">🐋</span> {r.wallet}</td>
+                    <td><span className="whale-tag">whale</span> {r.wallet}</td>
                     <td>{r.qty}</td>
                     <td>{r.value}</td>
                   </tr>
@@ -209,6 +247,34 @@ export default function TokenPage({ token, setPage }) {
               </tbody>
             </table>
           )}
+
+          {dataTab === 'social' && (
+            socialLoad
+              ? <div className="table-status">Fetching X mentions...</div>
+              : socialErr
+              ? <div className="table-status table-err">X API error: {socialErr}</div>
+              : tweets.length === 0
+              ? <div className="table-status">No recent mentions found for ${ticker}</div>
+              : (
+                <div className="tweets-list">
+                  {tweets.map(tw => (
+                    <div key={tw.id} className="tweet-card">
+                      <div className="tweet-meta">
+                        <span className="tweet-author">X @user</span>
+                        <span className="tweet-time">{timeAgo(tw.created_at)}</span>
+                      </div>
+                      <div className="tweet-text">{tw.text}</div>
+                      <div className="tweet-stats">
+                        <span>likes {tw.public_metrics ? tw.public_metrics.like_count : 0}</span>
+                        <span>RT {tw.public_metrics ? tw.public_metrics.retweet_count : 0}</span>
+                        <span>replies {tw.public_metrics ? tw.public_metrics.reply_count : 0}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
+          )}
+
         </div>
       </div>
 
