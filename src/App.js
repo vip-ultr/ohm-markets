@@ -16,7 +16,7 @@ export default function App() {
   const [selectedToken, setSelectedToken] = useState(null);
 
   // Privy auth
-  const { authenticated, user } = usePrivy();
+  const { ready, authenticated, user } = usePrivy();
   const { wallets }             = useWallets();
 
   // Derive the primary wallet address
@@ -24,10 +24,19 @@ export default function App() {
   const walletAddress = primaryWallet?.address ?? null;
   const connected     = authenticated;
 
-  // Apply dark/light class to body
+  // Apply dark/light class to body (must be before any early return — Rules of Hooks)
   useEffect(() => {
     document.body.className = dark ? '' : 'light-mode';
   }, [dark]);
+
+  // Block render until Privy has initialised (avoids stale/undefined auth state)
+  if (!ready) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: 'var(--text3)', fontSize: '14px', letterSpacing: '0.08em' }}>
+        Loading…
+      </div>
+    );
+  }
 
   return (
     <div className="page-wrap">
