@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { usePrivy, useWallets } from '@privy-io/react-auth';
 import Navbar      from './components/Navbar';
 import Footer      from './components/Footer';
 import HomePage    from './pages/HomePage';
@@ -7,14 +8,21 @@ import ProfilePage from './pages/ProfilePage';
 
 /**
  * App — root component
- * Manages global state: current page, dark/light mode, wallet connection, selected token
+ * Auth state is owned by Privy; we derive connected/walletAddress from it.
  */
 export default function App() {
   const [page,          setPage]          = useState('home');
   const [dark,          setDark]          = useState(true);
-  const [connected,     setConnected]     = useState(false);
-  const [walletAddress, setWalletAddress] = useState(null);
   const [selectedToken, setSelectedToken] = useState(null);
+
+  // Privy auth
+  const { authenticated, user } = usePrivy();
+  const { wallets }             = useWallets();
+
+  // Derive the primary wallet address
+  const primaryWallet = wallets?.[0] ?? null;
+  const walletAddress = primaryWallet?.address ?? null;
+  const connected     = authenticated;
 
   // Apply dark/light class to body
   useEffect(() => {
@@ -28,7 +36,7 @@ export default function App() {
         dark={dark}
         setDark={setDark}
         connected={connected}
-        setConnected={setConnected}
+        walletAddress={walletAddress}
       />
 
       <main className="main-content">
@@ -47,9 +55,9 @@ export default function App() {
         {page === 'profile' && (
           <ProfilePage
             connected={connected}
-            setConnected={setConnected}
             walletAddress={walletAddress}
-            setWalletAddress={setWalletAddress}
+            user={user}
+            setPage={setPage}
           />
         )}
       </main>

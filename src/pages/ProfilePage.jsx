@@ -1,23 +1,33 @@
 import React, { useState, useEffect } from 'react';
+import { usePrivy } from '@privy-io/react-auth';
 import { useCopy } from '../hooks/useCopy';
 import { WALLET_HOLDINGS, WALLET_HISTORY } from '../data/mockData';
 import { fetchWalletBalances, fetchWalletTransactions } from '../services/helius';
 import './ProfilePage.css';
 
-export default function ProfilePage({ connected, setConnected, walletAddress }) {
+export default function ProfilePage({ connected, walletAddress, user, setPage }) {
+  const { login, logout } = usePrivy();
   const [holdTab, setHoldTab] = useState('holdings');
   const { copy, copied } = useCopy();
 
-  const [holdings,     setHoldings]     = useState(WALLET_HOLDINGS);
-  const [history,      setHistory]      = useState(WALLET_HISTORY);
-  const [solBalance,   setSolBalance]   = useState('—');
-  const [totalUsd,     setTotalUsd]     = useState('—');
-  const [tokenCount,   setTokenCount]   = useState(0);
-  const [loading,      setLoading]      = useState(false);
-  const [error,        setError]        = useState(null);
+  const [holdings,   setHoldings]   = useState(WALLET_HOLDINGS);
+  const [history,    setHistory]    = useState(WALLET_HISTORY);
+  const [solBalance, setSolBalance] = useState('—');
+  const [totalUsd,   setTotalUsd]   = useState('—');
+  const [tokenCount, setTokenCount] = useState(0);
+  const [loading,    setLoading]    = useState(false);
+  const [error,      setError]      = useState(null);
 
-  // Use the passed-in wallet address or fall back to a placeholder
   const addr = walletAddress || null;
+
+  // Display name: prefer linked Twitter/email, fallback to short address
+  const displayName = user?.twitter?.username
+    ? `@${user.twitter.username}`
+    : user?.email?.address
+    ? user.email.address
+    : addr
+    ? `${addr.slice(0, 6)}…${addr.slice(-4)}`
+    : 'Connected';
 
   useEffect(() => {
     if (!connected || !addr) return;
@@ -46,12 +56,12 @@ export default function ProfilePage({ connected, setConnected, walletAddress }) 
           <div className="profile-connect-icon">◎</div>
           <div className="profile-connect-msg">Connect to see your portfolio</div>
           <div className="profile-connect-sub">
-            Link your wallet or sign in with email or social via Privy
+            Sign in with wallet, email, Google, or Twitter via Privy
           </div>
           <button
             className="connect-btn"
             style={{ padding: '12px 32px', fontSize: '15px' }}
-            onClick={() => setConnected(true)}
+            onClick={login}
           >
             Connect Wallet
           </button>
@@ -59,8 +69,6 @@ export default function ProfilePage({ connected, setConnected, walletAddress }) 
       </div>
     );
   }
-
-  const displayAddr = addr || 'Wallet Connected';
 
   /* ── Connected ── */
   return (
@@ -70,7 +78,7 @@ export default function ProfilePage({ connected, setConnected, walletAddress }) 
       <div className="wallet-header">
         <div className="wallet-avatar">◎</div>
         <div>
-          <div className="wallet-connected-label">Connected Wallet</div>
+          <div className="wallet-connected-label">Connected</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             {addr ? (
               <span className="wallet-addr">
@@ -78,7 +86,7 @@ export default function ProfilePage({ connected, setConnected, walletAddress }) 
               </span>
             ) : (
               <span className="wallet-addr" style={{ color: 'var(--text3)' }}>
-                No address — connect via Privy
+                {displayName}
               </span>
             )}
             {addr && (
@@ -89,7 +97,7 @@ export default function ProfilePage({ connected, setConnected, walletAddress }) 
         <button
           className="time-btn"
           style={{ marginLeft: 'auto' }}
-          onClick={() => setConnected(false)}
+          onClick={logout}
         >
           Disconnect
         </button>
