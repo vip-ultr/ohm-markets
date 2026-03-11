@@ -12,14 +12,19 @@ root.render(
     <PrivyProvider
       appId={PRIVY_APP_ID}
       config={{
+        loginMethods: ['wallet', 'email', 'google', 'twitter'],
         appearance: {
           theme: 'dark',
           accentColor: '#9B6EFF',
           logo: 'Ω',
+          // Show only Solana wallets (Phantom, Solflare, Backpack, etc.)
+          walletChainType: 'solana-only',
         },
-        loginMethods: ['wallet', 'email', 'google', 'twitter'],
         embeddedWallets: {
-          createOnLogin: 'users-without-wallets',
+          // Nested per-chain config — creates a Solana embedded wallet on login
+          solana: {
+            createOnLogin: 'users-without-wallets',
+          },
         },
       }}
     >

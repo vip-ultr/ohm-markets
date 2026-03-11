@@ -16,18 +16,29 @@ export default function App() {
   const [selectedToken, setSelectedToken] = useState(null);
 
   // Privy auth
-  const { authenticated, user } = usePrivy();
+  const { ready, authenticated, user } = usePrivy();
   const { wallets }             = useWallets();
 
-  // Derive the primary wallet address
-  const primaryWallet = wallets?.[0] ?? null;
-  const walletAddress = primaryWallet?.address ?? null;
+  // Derive the primary Solana wallet address.
+  // useWallets() returns all chain types; filter for Solana so we never
+  // accidentally display an EVM address in a Solana-only app.
+  const solanaWallet  = wallets?.find(w => w.chainType === 'solana') ?? null;
+  const walletAddress = solanaWallet?.address ?? null;
   const connected     = authenticated;
 
-  // Apply dark/light class to body
+  // Apply dark/light class to body (must be before any early return — Rules of Hooks)
   useEffect(() => {
     document.body.className = dark ? '' : 'light-mode';
   }, [dark]);
+
+  // Block render until Privy has initialised (avoids stale/undefined auth state)
+  if (!ready) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: 'var(--text3)', fontSize: '14px', letterSpacing: '0.08em' }}>
+        Loading…
+      </div>
+    );
+  }
 
   return (
     <div className="page-wrap">
